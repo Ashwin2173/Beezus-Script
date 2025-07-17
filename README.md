@@ -1,0 +1,2 @@
+# lscript
+YAT for go 
