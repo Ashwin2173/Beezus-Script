@@ -27,4 +27,4 @@ def main(file_path):
     print(json.dumps(tree, indent=2))
     
 if __name__ == '__main__':
-    main("examples/main.ls")
+    main("examples/main.ls") 
