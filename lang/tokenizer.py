@@ -23,6 +23,17 @@ class TokenType:
     EQUAL = 105
     DOT = 106
     COMMA = 107
+    EQUAL_EQUAL = 108
+    BANG_EQUAL = 109
+    NOT = 110
+    LESSER = 111
+    GREATER = 112
+    LESSER_EQUAL = 113
+    GREATER_EQUAL = 114
+    PLUS = 115
+    MINUS = 116
+    STAR = 117
+    SLASH = 118
 
     GHOST_NAME = 200
 
@@ -105,6 +116,17 @@ class Tokenizer:
             '}': TokenType.CLOSE_BRACE,
             ';': TokenType.SEMICOLON,
             '=': TokenType.EQUAL,
-            ',': TokenType.COMMA
+            ',': TokenType.COMMA,
+            '==': TokenType.EQUAL_EQUAL,
+            '!=': TokenType.BANG_EQUAL,
+            '>': TokenType.GREATER,
+            '<': TokenType.LESSER,
+            '>=': TokenType.GREATER_EQUAL,
+            '<=': TokenType.LESSER_EQUAL,
+            '!': TokenType.NOT,
+            '+': TokenType.PLUS,
+            '-': TokenType.MINUS,
+            '*': TokenType.STAR,
+            '/': TokenType.SLASH
         }.get(symbol)
         

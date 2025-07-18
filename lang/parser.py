@@ -60,11 +60,11 @@ class Parser:
     def parse_return(self):
         line = self.tokens.peek().line
         self.tokens.next().expect(TokenType.INTEGER)
-        expression = self.tokens.peek()
+        expression = self.parse_expression()
         self.tokens.next().expect(TokenType.SEMICOLON)
         return {
             "type": "return",
-            "expression": expression.raw,
+            "expression": expression,
             "line": line
         }
     
@@ -108,3 +108,97 @@ class Parser:
         statements = self.parse_statements()
         self.tokens.peek().expect(TokenType.CLOSE_BRACE)
         return statements
+
+    def parse_expression(self):
+        line = self.tokens.peek().line
+        expression = {
+            "type": "expression",
+            "line": line,
+            "expression": self.equality()
+        }
+        self.tokens.next(-1)
+        return expression
+    
+    def equality(self):
+        left_expression = self.comparision()
+        while self.tokens.has_next() and self.tokens.peek().match(TokenType.EQUAL_EQUAL, TokenType.BANG_EQUAL):
+            operation = self.tokens.peek().type
+            self.tokens.next()
+            right_expression = self.comparision()
+            left_expression = {
+                "type": "binary",
+                "left": left_expression,
+                "operation": operation,
+                "right": right_expression
+            }
+        return left_expression
+
+    def comparision(self):
+        left_expression = self.term()
+        while self.tokens.has_next() and self.tokens.peek().match(TokenType.LESSER, TokenType.GREATER,
+                                                                  TokenType.LESSER_EQUAL, TokenType.GREATER_EQUAL):
+            operation = self.tokens.peek().type
+            self.tokens.next()
+            right_expression = self.term()
+            left_expression = {
+                "type": "binary",
+                "left": left_expression,
+                "operation": operation,
+                "right": right_expression
+            }
+        return left_expression
+
+    def term(self):
+        left_expression = self.factor()
+        while self.tokens.has_next() and self.tokens.peek().match(TokenType.PLUS, TokenType.MINUS):
+            operation = self.tokens.peek().type
+            self.tokens.next()
+            right_expression = self.factor()
+            left_expression = {
+                "type": "binary",
+                "left": left_expression,
+                "operation": operation,
+                "right": right_expression
+            }
+        return left_expression
+
+    def factor(self):
+        left_expression = self.unary()
+        while self.tokens.has_next() and self.tokens.peek().match(TokenType.STAR, TokenType.SLASH):
+            operation = self.tokens.peek().type
+            self.tokens.next()
+            right_expression = self.unary()
+            left_expression = {
+                "type": "binary",
+                "left": left_expression,
+                "operation": operation,
+                "right": right_expression
+            }
+        return left_expression
+
+    def unary(self):
+        if self.tokens.has_next():
+            if self.tokens.peek().match(TokenType.NOT, TokenType.MINUS):
+                operation = self.tokens.peek().type
+                self.tokens.next()
+                right_expression = self.unary()
+                return {
+                    "type": "unary",
+                    "operation": operation,
+                    "right": right_expression
+                }
+        return self.primary()
+
+    def primary(self):
+        if not self.tokens.has_next():
+            raise LoomSyntaxError("Invalid expression", self.tokens.peek(-1))
+        token = self.tokens.peek()
+        if token.match(TokenType.INTEGER):
+            self.tokens.next()
+            return {
+                "type": "INTEGER",
+                "value": int(token.raw)
+            }
+        else:
+            raise LoomSyntaxError(f"Invalid literal '{token.raw}'", token)
+

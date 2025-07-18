@@ -3,5 +3,5 @@ package main;
 import console;
 
 function main(args) {
-    return 0;
+    return 1 - 1;
 }
