@@ -59,7 +59,7 @@ class Parser:
 
     def parse_return(self):
         line = self.tokens.peek().line
-        self.tokens.next().expect(TokenType.INTEGER)
+        self.tokens.next()
         expression = self.parse_expression()
         self.tokens.next().expect(TokenType.SEMICOLON)
         return {
@@ -198,6 +198,18 @@ class Parser:
             return {
                 "type": "INTEGER",
                 "value": int(token.raw)
+            }
+        elif token.match(TokenType.STRING):
+            self.tokens.next()
+            return {
+                "type": "STRING",
+                "value": token.raw
+            }
+        elif token.match(TokenType.DOUBLE):
+            self.tokens.next()
+            return {
+                "type": "DOUBLE",
+                "value": token.raw
             }
         else:
             raise LoomSyntaxError(f"Invalid literal '{token.raw}'", token)
