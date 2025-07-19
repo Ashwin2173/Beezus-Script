@@ -3,5 +3,5 @@ package main;
 import console;
 
 function main(args) {
-    return 1 + 1.0;
+    return console.version;
 }

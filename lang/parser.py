@@ -21,7 +21,6 @@ class Parser:
             elif token.type == TokenType.KW_FUNCTION:
                 self.parse_function()
             else:
-                print(token.raw)
                 raise LoomSyntaxError("Invalid Syntax", token)
             self.tokens.next()
         return self.program
@@ -64,8 +63,8 @@ class Parser:
         self.tokens.next().expect(TokenType.SEMICOLON)
         return {
             "type": "return",
-            "expression": expression,
-            "line": line
+            "line": line,
+            "expression": expression
         }
     
     def parse_pass(self):
@@ -196,21 +195,41 @@ class Parser:
         if token.match(TokenType.INTEGER):
             self.tokens.next()
             return {
-                "type": "INTEGER",
+                "type": "integer",
                 "value": int(token.raw)
             }
         elif token.match(TokenType.STRING):
             self.tokens.next()
             return {
-                "type": "STRING",
+                "type": "string",
                 "value": token.raw
             }
         elif token.match(TokenType.DOUBLE):
             self.tokens.next()
             return {
-                "type": "DOUBLE",
+                "type": "double",
                 "value": token.raw
             }
+        elif token.match(TokenType.ID):
+            return self.parse_id()
         else:
             raise LoomSyntaxError(f"Invalid literal '{token.raw}'", token)
-
+    
+    def parse_id(self):
+        token = self.tokens.peek()
+        if self.tokens.has_next() and self.tokens.peek(1).match(TokenType.DOT):
+            self.tokens.next().expect(TokenType.DOT)
+            self.tokens.next()
+            return {
+                "type": "MemberExpression",
+                "name": token.raw,
+                "property": self.parse_id()
+            }
+        elif token.match(TokenType.ID):
+            self.tokens.next()
+            return {
+                "type": "ID",
+                "name": token.raw
+            }
+        else:
+            raise LoomSyntaxError("Invalid expression", self.tokens.peek())
