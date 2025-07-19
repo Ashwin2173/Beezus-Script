@@ -36,8 +36,8 @@ class Parser:
             elif token.type == TokenType.CLOSE_BRACE:
                 break
             else:
-                print(token.raw)
-                raise LoomSyntaxError("Invalid Syntax @statement", token)
+                statements.append(self.parse_expression())
+                self.tokens.next().expect(TokenType.SEMICOLON)
         return statements
     
     def parse_package(self):
@@ -108,6 +108,25 @@ class Parser:
         self.tokens.peek().expect(TokenType.CLOSE_BRACE)
         return statements
 
+    def parse_function_call(self, identifier):
+        self.tokens.next()
+        arguments = self.parse_function_arguments()
+        self.tokens.peek().expect(TokenType.CLOSE_PARAM)
+        return {
+            "type": "CallExpression",
+            "callee": identifier,
+            "arguments": arguments
+        }
+    
+    def parse_function_arguments(self):
+        arguments = list()
+        while not self.tokens.peek().match(TokenType.CLOSE_PARAM):
+            arguments.append(self.parse_expression())
+            if self.tokens.has_next() and not self.tokens.next().match(TokenType.CLOSE_PARAM):
+                self.tokens.peek().expect(TokenType.COMMA)
+                self.tokens.next()
+        return arguments
+
     def parse_expression(self):
         line = self.tokens.peek().line
         expression = {
@@ -176,16 +195,15 @@ class Parser:
         return left_expression
 
     def unary(self):
-        if self.tokens.has_next():
-            if self.tokens.peek().match(TokenType.NOT, TokenType.MINUS):
-                operation = self.tokens.peek().type
-                self.tokens.next()
-                right_expression = self.unary()
-                return {
-                    "type": "unary",
-                    "operation": operation,
-                    "right": right_expression
-                }
+        if self.tokens.has_next() and self.tokens.peek().match(TokenType.NOT, TokenType.MINUS):
+            operation = self.tokens.peek().type
+            self.tokens.next()
+            right_expression = self.unary()
+            return {
+                "type": "unary",
+                "operation": operation,
+                "right": right_expression
+            }
         return self.primary()
 
     def primary(self):
@@ -211,7 +229,12 @@ class Parser:
                 "value": token.raw
             }
         elif token.match(TokenType.ID):
-            return self.parse_id()
+            identifier = self.parse_id()
+            if self.tokens.peek().match(TokenType.OPEN_PARAM):
+                function_call = self.parse_function_call(identifier)
+                self.tokens.next()
+                return function_call
+            return identifier
         else:
             raise LoomSyntaxError(f"Invalid literal '{token.raw}'", token)
     

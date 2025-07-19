@@ -52,6 +52,7 @@ class Token:
     def expect(self, *type):
         if not self.match(*type):
             expected = ', '.join([TokenType.to_string(t) for t in type])
+            expected = expected.lower()
             raise LoomSyntaxError(f"Expected '{expected}', But got '{self.raw}'", self)
         
     def match(self, *type): 

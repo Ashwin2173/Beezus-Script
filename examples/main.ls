@@ -3,5 +3,7 @@ package main;
 import console;
 
 function main(args) {
-    return console.version;
+    var message = "Hello, World";
+    console.log(message);
+    return 0;
 }
