@@ -33,6 +33,8 @@ class Parser:
                 statements.append(self.parse_return())
             elif token.type == TokenType.KW_PASS or token.type == TokenType.SEMICOLON:
                 self.parse_pass()
+            elif token.type == TokenType.KW_VAR or token.type == TokenType.KW_CONST:
+                statements.append(self.parse_declaration())
             elif token.type == TokenType.CLOSE_BRACE:
                 break
             else:
@@ -66,7 +68,25 @@ class Parser:
             "line": line,
             "expression": expression
         }
-    
+
+    def parse_declaration(self):
+        token = self.tokens.peek()
+        type_ = "variableDeclaration"
+        if token.type == TokenType.KW_CONST:
+            type_ = "constantDeclaration"
+        self.tokens.next().expect(TokenType.ID)
+        variable = self.tokens.peek().raw
+        self.tokens.next().expect(TokenType.EQUAL)
+        self.tokens.next()
+        expression = self.parse_expression()
+        self.tokens.next().expect(TokenType.SEMICOLON)
+        return {
+            "type": type_,
+            "line": token.line,
+            "vairable": variable,
+            "expression": expression
+        }
+
     def parse_pass(self):
         self.tokens.next()
 
@@ -140,7 +160,7 @@ class Parser:
     def equality(self):
         left_expression = self.comparision()
         while self.tokens.has_next() and self.tokens.peek().match(TokenType.EQUAL_EQUAL, TokenType.BANG_EQUAL):
-            operation = self.tokens.peek().type
+            operation = self.tokens.peek().raw
             self.tokens.next()
             right_expression = self.comparision()
             left_expression = {
@@ -155,7 +175,7 @@ class Parser:
         left_expression = self.term()
         while self.tokens.has_next() and self.tokens.peek().match(TokenType.LESSER, TokenType.GREATER,
                                                                   TokenType.LESSER_EQUAL, TokenType.GREATER_EQUAL):
-            operation = self.tokens.peek().type
+            operation = self.tokens.peek().raw
             self.tokens.next()
             right_expression = self.term()
             left_expression = {
@@ -169,7 +189,7 @@ class Parser:
     def term(self):
         left_expression = self.factor()
         while self.tokens.has_next() and self.tokens.peek().match(TokenType.PLUS, TokenType.MINUS):
-            operation = self.tokens.peek().type
+            operation = self.tokens.peek().raw
             self.tokens.next()
             right_expression = self.factor()
             left_expression = {
@@ -183,7 +203,7 @@ class Parser:
     def factor(self):
         left_expression = self.unary()
         while self.tokens.has_next() and self.tokens.peek().match(TokenType.STAR, TokenType.SLASH):
-            operation = self.tokens.peek().type
+            operation = self.tokens.peek().raw
             self.tokens.next()
             right_expression = self.unary()
             left_expression = {
@@ -196,7 +216,7 @@ class Parser:
 
     def unary(self):
         if self.tokens.has_next() and self.tokens.peek().match(TokenType.NOT, TokenType.MINUS):
-            operation = self.tokens.peek().type
+            operation = self.tokens.peek().raw
             self.tokens.next()
             right_expression = self.unary()
             return {

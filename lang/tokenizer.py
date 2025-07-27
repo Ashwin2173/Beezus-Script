@@ -14,6 +14,7 @@ class TokenType:
     KW_PACKAGE = 6
     KW_IMPORT = 7
     KW_PASS = 8
+    KW_CONST = 9
 
     SEMICOLON = 100
     OPEN_PARAM = 101
@@ -103,6 +104,7 @@ class Tokenizer:
             "function": TokenType.KW_FUNCTION,
             "return": TokenType.KW_RETURN,
             "var": TokenType.KW_VAR,
+            "const": TokenType.KW_CONST,
             "package": TokenType.KW_PACKAGE, 
             "import": TokenType.KW_IMPORT,
             "pass": TokenType.KW_PASS,

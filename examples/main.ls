@@ -3,7 +3,8 @@ package main;
 import console;
 
 function main(args) {
-    var message = "Hello, World";
+    const message = "Hello, " + "World";
+    var count = 0;
     console.log(message);
     return 0;
 }
