@@ -1,5 +1,6 @@
 from lang.tokenizer import TokenType
 from lang.expections import LoomSyntaxError
+from lang.utils.ast_node import NodeType
 
 class Parser:
     def __init__(self, tokens):
@@ -64,16 +65,16 @@ class Parser:
         expression = self.parse_expression()
         self.tokens.next().expect(TokenType.SEMICOLON)
         return {
-            "type": "return",
+            "type": NodeType.RETURN_DECLARATION,
             "line": line,
             "expression": expression
         }
 
     def parse_declaration(self):
         token = self.tokens.peek()
-        type_ = "variableDeclaration"
+        type_ = NodeType.VARIABLE_DECLARATION
         if token.type == TokenType.KW_CONST:
-            type_ = "constantDeclaration"
+            type_ = NodeType.CONSTANTS_DECLARATION
         self.tokens.next().expect(TokenType.ID)
         variable = self.tokens.peek().raw
         self.tokens.next().expect(TokenType.EQUAL)
@@ -99,7 +100,7 @@ class Parser:
         function_body = self.parse_block()
         if function_name == "main": function_name = "__main__"
         self.program['body'].append({
-            "type": "function",
+            "type": NodeType.FUNCTION_DECLARATION,
             "name": function_name,
             "line": line,
             "params": function_args,
@@ -133,7 +134,7 @@ class Parser:
         arguments = self.parse_function_arguments()
         self.tokens.peek().expect(TokenType.CLOSE_PARAM)
         return {
-            "type": "CallExpression",
+            "type": NodeType.CALL_EXPRESSION,
             "callee": identifier,
             "arguments": arguments
         }
@@ -150,7 +151,7 @@ class Parser:
     def parse_expression(self):
         line = self.tokens.peek().line
         expression = {
-            "type": "expression",
+            "type": NodeType.EXPRESSION,
             "line": line,
             "expression": self.equality()
         }
@@ -164,7 +165,7 @@ class Parser:
             self.tokens.next()
             right_expression = self.comparision()
             left_expression = {
-                "type": "binary",
+                "type": NodeType.BINARY_EXPRESSION,
                 "left": left_expression,
                 "operation": operation,
                 "right": right_expression
@@ -179,7 +180,7 @@ class Parser:
             self.tokens.next()
             right_expression = self.term()
             left_expression = {
-                "type": "binary",
+                "type": NodeType.BINARY_EXPRESSION,
                 "left": left_expression,
                 "operation": operation,
                 "right": right_expression
@@ -193,7 +194,7 @@ class Parser:
             self.tokens.next()
             right_expression = self.factor()
             left_expression = {
-                "type": "binary",
+                "type": NodeType.BINARY_EXPRESSION,
                 "left": left_expression,
                 "operation": operation,
                 "right": right_expression
@@ -207,7 +208,7 @@ class Parser:
             self.tokens.next()
             right_expression = self.unary()
             left_expression = {
-                "type": "binary",
+                "type": NodeType.BINARY_EXPRESSION,
                 "left": left_expression,
                 "operation": operation,
                 "right": right_expression
@@ -220,7 +221,7 @@ class Parser:
             self.tokens.next()
             right_expression = self.unary()
             return {
-                "type": "unary",
+                "type": NodeType.UNARY_EXPRESSION,
                 "operation": operation,
                 "right": right_expression
             }
@@ -233,19 +234,19 @@ class Parser:
         if token.match(TokenType.INTEGER):
             self.tokens.next()
             return {
-                "type": "integer",
+                "type": NodeType.INTEGER_LITERAL,
                 "value": int(token.raw)
             }
         elif token.match(TokenType.STRING):
             self.tokens.next()
             return {
-                "type": "string",
+                "type": NodeType.STRING_LITERAL,
                 "value": token.raw
             }
         elif token.match(TokenType.DOUBLE):
             self.tokens.next()
             return {
-                "type": "double",
+                "type": NodeType.DOUBLE_LITERAL,
                 "value": token.raw
             }
         elif token.match(TokenType.ID):
@@ -264,14 +265,14 @@ class Parser:
             self.tokens.next().expect(TokenType.DOT)
             self.tokens.next()
             return {
-                "type": "MemberExpression",
+                "type": NodeType.MEMBERSHIP_EXPRESSION,
                 "name": token.raw,
                 "property": self.parse_id()
             }
         elif token.match(TokenType.ID):
             self.tokens.next()
             return {
-                "type": "ID",
+                "type": NodeType.IDENTITY,
                 "name": token.raw
             }
         else:
