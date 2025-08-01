@@ -60,15 +60,15 @@ class Token:
         return self.type in type
 
 class Tokenizer:
-    def __init__(self, program, grammer):
+    def __init__(self, program, grammar):
         self.program = program
-        self.grammer = grammer
+        self.grammar = grammar
         self.line = 1
 
     def tokenize(self):
         tokens = list()
-        compiled_grammer = re.compile(self.grammer, re.VERBOSE)
-        for item in compiled_grammer.finditer(self.program):
+        compiled_grammar = re.compile(self.grammar, re.VERBOSE)
+        for item in compiled_grammar.finditer(self.program):
             token_type, raw_token = self.__get_token_type(item.groupdict())
             if token_type is None: continue
             tokens.append(
@@ -108,7 +108,7 @@ class Tokenizer:
             "package": TokenType.KW_PACKAGE, 
             "import": TokenType.KW_IMPORT,
             "pass": TokenType.KW_PASS,
-            "__main__": TokenType.GHOST_NAME
+            "main__": TokenType.GHOST_NAME
         }.get(identifier)
     
     def __get_symbol(self, symbol):

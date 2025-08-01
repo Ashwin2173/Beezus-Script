@@ -6,8 +6,9 @@ class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
         self.pointer = 0
+        self.data_types = {"integer", "string", "double"}
+        self.package_name = None
         self.program = {
-            "package": None,
             "import": set(),
             "body": []
         }
@@ -47,9 +48,9 @@ class Parser:
         self.tokens.next()
         self.tokens.peek().expect(TokenType.ID)
         package_name = self.tokens.peek()
-        if self.program['package'] is not None:
+        if self.package_name is not None:
             raise LoomSyntaxError("Re-declaration of package", package_name)
-        self.program['package'] = package_name.raw
+        self.package_name = package_name.raw
         self.tokens.next().expect(TokenType.SEMICOLON)
 
     def parse_import(self):
@@ -76,6 +77,8 @@ class Parser:
         if token.type == TokenType.KW_CONST:
             type_ = NodeType.CONSTANTS_DECLARATION
         self.tokens.next().expect(TokenType.ID)
+        data_type = self.tokens.peek().raw
+        self.tokens.next().expect(TokenType.ID)
         variable = self.tokens.peek().raw
         self.tokens.next().expect(TokenType.EQUAL)
         self.tokens.next()
@@ -84,7 +87,8 @@ class Parser:
         return {
             "type": type_,
             "line": token.line,
-            "vairable": variable,
+            "dataType": data_type,
+            "variable": variable,
             "expression": expression
         }
 
@@ -95,12 +99,18 @@ class Parser:
         line = self.tokens.peek().line
         self.tokens.next()
         self.tokens.peek().expect(TokenType.ID)
+        return_type = self.tokens.peek().raw
+        self.tokens.next().expect(TokenType.ID)
         function_name = self.tokens.peek().raw
         function_args = self.parse_function_args()
         function_body = self.parse_block()
-        if function_name == "main": function_name = "__main__"
+        if function_name == "main":
+            function_name = "main__"
+        else:
+            function_name = f"{self.package_name}_{function_name}"
         self.program['body'].append({
             "type": NodeType.FUNCTION_DECLARATION,
+            "returnType": return_type,
             "name": function_name,
             "line": line,
             "params": function_args,
@@ -159,11 +169,11 @@ class Parser:
         return expression
     
     def equality(self):
-        left_expression = self.comparision()
+        left_expression = self.comparison()
         while self.tokens.has_next() and self.tokens.peek().match(TokenType.EQUAL_EQUAL, TokenType.BANG_EQUAL):
             operation = self.tokens.peek().raw
             self.tokens.next()
-            right_expression = self.comparision()
+            right_expression = self.comparison()
             left_expression = {
                 "type": NodeType.BINARY_EXPRESSION,
                 "left": left_expression,
@@ -172,7 +182,7 @@ class Parser:
             }
         return left_expression
 
-    def comparision(self):
+    def comparison(self):
         left_expression = self.term()
         while self.tokens.has_next() and self.tokens.peek().match(TokenType.LESSER, TokenType.GREATER,
                                                                   TokenType.LESSER_EQUAL, TokenType.GREATER_EQUAL):
