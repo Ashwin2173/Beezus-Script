@@ -36,4 +36,4 @@ def main(file_path):
     os.system(f"go run {new_file_path}")
 
 if __name__ == '__main__':
-    main("examples/input.ls")
+    main("examples/main.bz")
