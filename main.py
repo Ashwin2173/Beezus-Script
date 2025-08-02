@@ -31,8 +31,9 @@ def main(file_path):
     with open(new_file_path, 'w') as compiled_file:
         compiled_file.write(file.compile())
 
+    os.system(f"gofmt -w {new_file_path}")
     print(f"[RUNNING] go run {new_file_path}")
     os.system(f"go run {new_file_path}")
 
 if __name__ == '__main__':
-    main("examples/main.ls") 
+    main("examples/input.ls")

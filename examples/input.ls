@@ -1,0 +1,24 @@
+package main;
+
+function void main() {
+    print("Example 1: ");
+    main.example1();
+    print("Example 2: ");
+    main.example2();
+    print("Example 3: ");
+    main.example3();
+}
+
+function void example1() {
+    print("Your Input is", input("Enter a message: "));
+}
+
+function void example2() {
+    var integer value = int(input("Enter your age: "));
+    print("you're Age after 10 years is", value + 10);
+}
+
+function void example3() {
+    print("count of chars in the input is",
+        len(input("Enter a message: ")));
+}

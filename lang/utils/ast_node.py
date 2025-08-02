@@ -17,6 +17,7 @@ def get_default_type_mapping(_type):
     default_types = {
         "integer": "int64",
         "string": "string",
-        "double": "float64"
+        "double": "float64",
+        "void": ""
     }
     return default_types.get(_type) if _type in default_types else _type
