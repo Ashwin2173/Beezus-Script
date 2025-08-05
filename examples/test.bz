@@ -1,4 +1,5 @@
 package main;
 
-function void main() {
+function main() {
+    print("Hello, World");
 }

@@ -1,6 +1,6 @@
 package main;
 
-function void main() {
+function main() {
     print("Example 1: ");
     main.example1();
     print("Example 2: ");

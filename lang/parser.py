@@ -99,9 +99,12 @@ class Parser:
         line = self.tokens.peek().line
         self.tokens.next()
         self.tokens.peek().expect(TokenType.ID)
-        return_type = self.tokens.peek().raw
-        self.tokens.next().expect(TokenType.ID)
+        return_type = "void"        # To support fancy no return type declaration
         function_name = self.tokens.peek().raw
+        if self.tokens.peek(1).match(TokenType.ID):
+            return_type = function_name
+            function_name = self.tokens.next().raw
+            print(return_type, function_name)
         function_args = self.parse_function_args()
         function_body = self.parse_block()
         if function_name == "main":
