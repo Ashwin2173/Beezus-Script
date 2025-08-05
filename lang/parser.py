@@ -1,3 +1,5 @@
+from lib2to3.fixes.fix_renames import alternates
+
 from lang.tokenizer import TokenType
 from lang.expections import LoomSyntaxError
 from lang.utils.ast_node import NodeType
@@ -93,11 +95,16 @@ class Parser:
         expression = self.parse_expression()
         self.tokens.next()
         consequent = self.parse_statement()
+        alternate = None
+        if self.tokens.peek(1).match(TokenType.KW_ELSE):
+            self.tokens.next(2) # skipping else keyword
+            alternate = self.parse_statement()
         return {
             "type": NodeType.IF_STATEMENT,
             "line": line,
             "test": expression,
             "consequent": consequent,
+            "alternate": alternate
         }
 
     def parse_declaration(self):

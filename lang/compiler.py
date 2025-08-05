@@ -47,9 +47,12 @@ class Compiler:
         elif _type == NodeType.IF_STATEMENT:
             expression = self.get_compiled_expression(statement['test'])
             compiled_consequent = self.get_compiled_statement(statement['consequent'])
-            return f"if {expression} {{ {compiled_consequent} }}"
+            compiled_if = f"if {expression} {{ {compiled_consequent} }}"
+            if statement['alternate'] is not None:
+                compiled_alternate = self.get_compiled_statement(statement['alternate'])
+                compiled_if = f"{compiled_if} else {{ {compiled_alternate} }}"
+            return compiled_if
         elif _type == NodeType.BLOCK_STATEMENT:
-            print("yes")
             return "\n".join([self.get_compiled_statement(line) for line in statement['body']])
         else:
             raise Exception("Unimplemented inner statement: " + str(_type))
