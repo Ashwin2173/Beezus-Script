@@ -118,19 +118,23 @@ class Parser:
         })
 
     def parse_function_args(self):
-        args = list()
+        args = set()
+        args_list = list()
         self.tokens.next().expect(TokenType.OPEN_PARAM)
         if self.tokens.peek(1).type == TokenType.CLOSE_PARAM:
             self.tokens.next()
-            return args
+            return args_list
         while True:
+            self.tokens.next().expect(TokenType.ID)
+            data_type = self.tokens.peek()
             self.tokens.next().expect(TokenType.ID)
             arg = self.tokens.peek()
             if arg.raw in args:
                 raise LoomSyntaxError(f"Duplicate parameter '{arg.raw}' in function declaration", arg)
-            args.append(arg.raw)
+            args.add(arg.raw)
+            args_list.append((arg.raw, data_type.raw))
             if self.tokens.next().type == TokenType.CLOSE_PARAM:
-                return args
+                return args_list
             self.tokens.peek().expect(TokenType.COMMA)
 
     def parse_block(self):

@@ -18,7 +18,9 @@ class Compiler:
             if _type == NodeType.FUNCTION_DECLARATION:
                 name = statement['name']
                 return_type = get_default_type_mapping(statement['returnType'])
-                self.compiled.append(f"func {name}() {return_type} {{")
+                params = ", ".join([f"{p_name} {get_default_type_mapping(p_type)}"
+                                    for p_name, p_type in statement['params']])
+                self.compiled.append(f"func {name}({params}) {return_type} {{")
                 self.compile_statements(statement['body'])
                 self.compiled.append("}")
             else:
