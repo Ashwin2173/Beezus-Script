@@ -1,5 +1,11 @@
 package main;
 
 function main() {
-    print("Hello, World");
+     const string data = "monkeyBalls";
+     var string input = input("Enter data: ");
+     if data == input {
+        print(data);
+     } else {
+        print("You are just an norm person");
+    }
 }

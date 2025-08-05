@@ -29,20 +29,30 @@ class Compiler:
 
     def compile_statements(self, statements):
         for statement in statements:
-            _type = statement['type']
-            if _type in {NodeType.VARIABLE_DECLARATION, NodeType.CONSTANTS_DECLARATION}:
-                declaration_type = "var" if _type == NodeType.VARIABLE_DECLARATION else "const"
-                data_type = get_default_type_mapping(statement['dataType'])
-                name = statement['variable']
-                expression = self.get_compiled_expression(statement['expression'])
-                self.compiled.append(f"{declaration_type} {name} {data_type} = {expression}")
-            elif _type == NodeType.EXPRESSION:
-                self.compiled.append(self.get_compiled_expression(statement['expression']))
-            elif _type == NodeType.RETURN_DECLARATION:
-                expression = self.get_compiled_expression(statement['expression'])
-                self.compiled.append(f"return {expression}")
-            else:
-                raise Exception("Unimplemented inner statement: " + str(_type))
+            self.compiled.append(self.get_compiled_statement(statement))
+
+    def get_compiled_statement(self, statement):
+        _type = statement['type']
+        if _type in {NodeType.VARIABLE_DECLARATION, NodeType.CONSTANTS_DECLARATION}:
+            declaration_type = "var" if _type == NodeType.VARIABLE_DECLARATION else "const"
+            data_type = get_default_type_mapping(statement['dataType'])
+            name = statement['variable']
+            expression = self.get_compiled_expression(statement['expression'])
+            return f"{declaration_type} {name} {data_type} = {expression}"
+        elif _type == NodeType.EXPRESSION:
+            return self.get_compiled_expression(statement['expression'])
+        elif _type == NodeType.RETURN_DECLARATION:
+            expression = self.get_compiled_expression(statement['expression'])
+            return f"return {expression}"
+        elif _type == NodeType.IF_STATEMENT:
+            expression = self.get_compiled_expression(statement['test'])
+            compiled_consequent = self.get_compiled_statement(statement['consequent'])
+            return f"if {expression} {{ {compiled_consequent} }}"
+        elif _type == NodeType.BLOCK_STATEMENT:
+            print("yes")
+            return "\n".join([self.get_compiled_statement(line) for line in statement['body']])
+        else:
+            raise Exception("Unimplemented inner statement: " + str(_type))
 
     def get_compiled_expression(self, expression):
         _type = expression['type']

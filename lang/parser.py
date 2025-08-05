@@ -30,20 +30,27 @@ class Parser:
     def parse_statements(self):
         statements = list()
         while self.tokens.has_next():
-            token = self.tokens.next()
-            if token.type == TokenType.KW_RETURN:
-                statements.append(self.parse_return())
-            elif token.type == TokenType.KW_PASS or token.type == TokenType.SEMICOLON:
-                self.parse_pass()
-            elif token.type == TokenType.KW_VAR or token.type == TokenType.KW_CONST:
-                statements.append(self.parse_declaration())
-            elif token.type == TokenType.CLOSE_BRACE:
-                break
-            else:
-                statements.append(self.parse_expression())
-                self.tokens.next().expect(TokenType.SEMICOLON)
+            if self.tokens.next().type == TokenType.CLOSE_BRACE: break
+            statement = self.parse_statement()
+            if statement is not None:
+                statements.append(statement)
         return statements
-    
+
+    def parse_statement(self):
+        token = self.tokens.peek()
+        if token.type == TokenType.KW_RETURN:
+            return self.parse_return()
+        elif token.type == TokenType.KW_VAR or token.type == TokenType.KW_CONST:
+            return self.parse_declaration()
+        elif token.type == TokenType.KW_IF:
+            return self.parse_if()
+        elif token.type == TokenType.OPEN_BRACE:
+            return self.parse_block_statement()
+        else:
+            expression = self.parse_expression()
+            self.tokens.next().expect(TokenType.SEMICOLON)
+            return expression
+
     def parse_package(self):
         self.tokens.next()
         self.tokens.peek().expect(TokenType.ID)
@@ -69,6 +76,28 @@ class Parser:
             "type": NodeType.RETURN_DECLARATION,
             "line": line,
             "expression": expression
+        }
+
+    def parse_block_statement(self):
+        line = self.tokens.peek().line
+        statements = self.parse_block()
+        return {
+            "type": NodeType.BLOCK_STATEMENT,
+            "line": line,
+            "body": statements
+        }
+
+    def parse_if(self):
+        line = self.tokens.peek().line
+        self.tokens.next()
+        expression = self.parse_expression()
+        self.tokens.next()
+        consequent = self.parse_statement()
+        return {
+            "type": NodeType.IF_STATEMENT,
+            "line": line,
+            "test": expression,
+            "consequent": consequent,
         }
 
     def parse_declaration(self):
@@ -104,8 +133,8 @@ class Parser:
         if self.tokens.peek(1).match(TokenType.ID):
             return_type = function_name
             function_name = self.tokens.next().raw
-            print(return_type, function_name)
         function_args = self.parse_function_args()
+        self.tokens.next()
         function_body = self.parse_block()
         if function_name == "main":
             function_name = "main__"
@@ -141,7 +170,7 @@ class Parser:
             self.tokens.peek().expect(TokenType.COMMA)
 
     def parse_block(self):
-        self.tokens.next().expect(TokenType.OPEN_BRACE)
+        self.tokens.peek().expect(TokenType.OPEN_BRACE)
         statements = self.parse_statements()
         self.tokens.peek().expect(TokenType.CLOSE_BRACE)
         return statements

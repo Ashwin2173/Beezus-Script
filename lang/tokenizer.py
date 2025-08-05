@@ -15,6 +15,7 @@ class TokenType:
     KW_IMPORT = 7
     KW_PASS = 8
     KW_CONST = 9
+    KW_IF = 10
 
     SEMICOLON = 100
     OPEN_PARAM = 101
@@ -108,6 +109,7 @@ class Tokenizer:
             "package": TokenType.KW_PACKAGE, 
             "import": TokenType.KW_IMPORT,
             "pass": TokenType.KW_PASS,
+            "if": TokenType.KW_IF,
             "main__": TokenType.GHOST_NAME
         }.get(identifier)
     

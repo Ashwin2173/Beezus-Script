@@ -12,6 +12,8 @@ class NodeType:
     DOUBLE_LITERAL = 10
     MEMBERSHIP_EXPRESSION = 11
     IDENTITY = 12
+    IF_STATEMENT = 13
+    BLOCK_STATEMENT = 14
 
 def get_default_type_mapping(_type):
     default_types = {
