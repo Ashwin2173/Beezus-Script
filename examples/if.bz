@@ -4,7 +4,7 @@ function main() {
      const string data = "monkeyBalls";
      var string input = input("Enter data: ");
      if data == input {
-        print(data);
+        print("HOOO AHHHA UHOO");
      } else {
         print("You are just an norm person");
     }
