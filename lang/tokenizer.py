@@ -8,7 +8,6 @@ class TokenType:
     DOUBLE = 2
     STRING = 3
 
-    KW_FUNCTION = 3
     KW_RETURN = 4
     KW_VAR = 5
     KW_PACKAGE = 6
@@ -103,7 +102,6 @@ class Tokenizer:
         
     def __is_keyword(self, identifier):
         return {
-            "function": TokenType.KW_FUNCTION,
             "return": TokenType.KW_RETURN,
             "var": TokenType.KW_VAR,
             "const": TokenType.KW_CONST,

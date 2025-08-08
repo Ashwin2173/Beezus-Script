@@ -1,27 +1,28 @@
 package main;
 
-function main() {
-    if main.runTest() == 0 {
+main() {
+    if runTest() == 0 {
         print("All fib test passed");
     }
 }
-function integer runTest() {
-    if main.fib(3) != 2 {
+
+integer runTest() {
+    if fib(3) != 2 {
         print("fib(3) test failed");
         return 1;
-    } else if main.fib(7) != 13 {
+    } else if fib(7) != 13 {
         print("fib(7) test failed");
         return 1;
-    } else if main.fib(20) != 6765 {
+    } else if fib(20) != 6765 {
         print("fib(100) test failed");
         return 1;
     }
     return 0;
 }
 
-function integer fib(integer num) {
+integer fib(integer num) {
     if num <= 1 {
         return num;
     }
-    return main.fib(num - 1) + main.fib(num - 2);
+    return fib(num - 1) + fib(num - 2);
 }

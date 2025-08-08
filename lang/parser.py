@@ -1,5 +1,3 @@
-from lib2to3.fixes.fix_renames import alternates
-
 from lang.tokenizer import TokenType
 from lang.expections import LoomSyntaxError
 from lang.utils.ast_node import NodeType
@@ -22,8 +20,8 @@ class Parser:
                 self.parse_package()
             elif token.type == TokenType.KW_IMPORT:
                 self.parse_import()
-            elif token.type == TokenType.KW_FUNCTION:
-                self.parse_function()
+            elif token.type == TokenType.ID:
+                self.parse_global_declaration()
             else:
                 raise LoomSyntaxError("Invalid Syntax", token)
             self.tokens.next()
@@ -68,6 +66,17 @@ class Parser:
         import_module = self.tokens.peek().raw
         self.program['import'].add(import_module)
         self.tokens.next().expect(TokenType.SEMICOLON)
+
+    def parse_global_declaration(self):
+        return_type = "void" # To Support fancy no return type function declaration
+        name = self.tokens.peek()
+        if self.tokens.peek(1).match(TokenType.ID):
+            return_type = name.raw
+            name = self.tokens.next()
+        if self.tokens.peek(1).match(TokenType.OPEN_PARAM):
+            self.parse_function(name, return_type)
+        else:
+            raise LoomSyntaxError("invalid syntax", return_type)
 
     def parse_return(self):
         line = self.tokens.peek().line
@@ -131,21 +140,15 @@ class Parser:
     def parse_pass(self):
         self.tokens.next()
 
-    def parse_function(self):
-        line = self.tokens.peek().line
-        self.tokens.next()
-        self.tokens.peek().expect(TokenType.ID)
-        return_type = "void"        # To support fancy no return type declaration
-        function_name = self.tokens.peek().raw
-        if self.tokens.peek(1).match(TokenType.ID):
-            return_type = function_name
-            function_name = self.tokens.next().raw
+    def parse_function(self, name, return_type):
+        line = name.line
+        function_name = name.raw
         function_args = self.parse_function_args()
         self.tokens.next()
         function_body = self.parse_block()
-        if function_name == "main":
+        if name.raw == "main":
             function_name = "main__"
-        else:
+        elif self.package_name != "main":
             function_name = f"{self.package_name}_{function_name}"
         self.program['body'].append({
             "type": NodeType.FUNCTION_DECLARATION,

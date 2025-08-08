@@ -1,5 +1,3 @@
-from imp import load_compiled
-
 from lang.utils.ast_node import NodeType, get_default_type_mapping
 
 class Compiler:

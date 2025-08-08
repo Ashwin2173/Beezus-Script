@@ -1,11 +1,11 @@
 package main;
 
-function main() {
+void main() {
     const string message = "Hello, " + "World";
-    var integer value = main.get_number();
+    var integer value = getNumber();
     print(message, value);
 }
 
-function integer get_number() {
+integer getNumber() {
     return 21;
 }

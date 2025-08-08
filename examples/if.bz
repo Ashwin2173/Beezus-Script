@@ -1,6 +1,6 @@
 package main;
 
-function main() {
+void main() {
      const string data = "monkeyBalls";
      var string input = input("Enter data: ");
      if data == input {
