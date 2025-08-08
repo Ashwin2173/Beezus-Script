@@ -34,6 +34,7 @@ def main(file_path):
     os.system(f"gofmt -w {new_file_path}")
     print(f"[RUNNING] go run {new_file_path}")
     os.system(f"go run {new_file_path}")
+    # os.system(f"del {new_file_path}")
 
 if __name__ == '__main__':
-    main("examples/main.bz")
+    main("examples/assignment.bz")

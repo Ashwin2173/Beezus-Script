@@ -67,6 +67,10 @@ class Compiler:
             left = self.get_compiled_expression(expression['left'])
             right = self.get_compiled_expression(expression['right'])
             return f"{left} {expression['operation']} {right}"
+        elif _type == NodeType.ASSIGNMENT_EXPRESSION:
+            left = self.get_membership_name(expression['left'])
+            right = self.get_compiled_expression(expression['right'])
+            return f"{left} {expression['operation']} {right}"
         elif _type == NodeType.CALL_EXPRESSION:
             name = self.get_membership_name(expression['callee'])
             arguments = ", ".join([

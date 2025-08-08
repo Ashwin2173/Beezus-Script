@@ -1,0 +1,12 @@
+package main;
+
+void main() {
+    var integer value = 10;
+    print("before updating the value is", value);
+    value += getIncNumber();
+    print("After updating the value is", value);
+}
+
+integer getIncNumber() {
+    return 100;
+}

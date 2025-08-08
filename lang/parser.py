@@ -209,10 +209,26 @@ class Parser:
         expression = {
             "type": NodeType.EXPRESSION,
             "line": line,
-            "expression": self.equality()
+            "expression": self.assignment()
         }
         self.tokens.next(-1)
         return expression
+
+    def assignment(self):
+        left = self.equality()
+        if self.tokens.has_next() and self.tokens.peek().match(TokenType.EQUAL, TokenType.PLUS_EQUAL):
+            operation = self.tokens.peek().raw
+            self.tokens.next()
+            right = self.equality()
+            if left["type"] not in {NodeType.IDENTITY, NodeType.MEMBERSHIP_EXPRESSION}:
+                raise LoomSyntaxError("cannot assign to an expression")
+            return {
+                "type": NodeType.ASSIGNMENT_EXPRESSION,
+                "left": left,
+                "operation": operation,
+                "right": right
+            }
+        return left
     
     def equality(self):
         left_expression = self.comparison()

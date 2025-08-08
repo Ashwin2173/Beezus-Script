@@ -36,6 +36,7 @@ class TokenType:
     MINUS = 116
     STAR = 117
     SLASH = 118
+    PLUS_EQUAL = 119
 
     GHOST_NAME = 200
 
@@ -97,6 +98,8 @@ class Tokenizer:
         elif token['NEWLINE'] is not None:
             self.line += 1
             return None, None
+        elif token['COMMENT'] is not None:
+            return None, None
         else:
             raise TokenError("Reached Unreachable code @Tokenizer -> get_token_type", self.line)
         
@@ -130,6 +133,7 @@ class Tokenizer:
             '<=': TokenType.LESSER_EQUAL,
             '!': TokenType.NOT,
             '+': TokenType.PLUS,
+            '+=': TokenType.PLUS_EQUAL,
             '-': TokenType.MINUS,
             '*': TokenType.STAR,
             '/': TokenType.SLASH
