@@ -15,6 +15,7 @@ class NodeType:
     IF_STATEMENT = 13
     BLOCK_STATEMENT = 14
     ASSIGNMENT_EXPRESSION = 15
+    WHILE_STATEMENT = 16
 
 def get_default_type_mapping(_type):
     default_types = {

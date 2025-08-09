@@ -16,6 +16,7 @@ class TokenType:
     KW_CONST = 9
     KW_IF = 10
     KW_ELSE = 11
+    KW_WHILE = 12
 
     SEMICOLON = 100
     OPEN_PARAM = 101
@@ -37,6 +38,7 @@ class TokenType:
     STAR = 117
     SLASH = 118
     PLUS_EQUAL = 119
+    MINUS_EQUAL = 120
 
     GHOST_NAME = 200
 
@@ -113,6 +115,7 @@ class Tokenizer:
             "pass": TokenType.KW_PASS,
             "if": TokenType.KW_IF,
             "else": TokenType.KW_ELSE,
+            "while": TokenType.KW_WHILE,
             "main__": TokenType.GHOST_NAME
         }.get(identifier)
     
@@ -135,6 +138,7 @@ class Tokenizer:
             '+': TokenType.PLUS,
             '+=': TokenType.PLUS_EQUAL,
             '-': TokenType.MINUS,
+            '-=': TokenType.MINUS_EQUAL,
             '*': TokenType.STAR,
             '/': TokenType.SLASH
         }.get(symbol)

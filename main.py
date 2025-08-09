@@ -37,4 +37,4 @@ def main(file_path):
     # os.system(f"del {new_file_path}")
 
 if __name__ == '__main__':
-    main("examples/assignment.bz")
+    main("examples/whileLoop.bz")

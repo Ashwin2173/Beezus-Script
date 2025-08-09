@@ -44,6 +44,8 @@ class Parser:
             return self.parse_declaration()
         elif token.type == TokenType.KW_IF:
             return self.parse_if()
+        elif token.type == TokenType.KW_WHILE:
+            return self.parse_while()
         elif token.type == TokenType.OPEN_BRACE:
             return self.parse_block_statement()
         else:
@@ -96,6 +98,19 @@ class Parser:
             "type": NodeType.BLOCK_STATEMENT,
             "line": line,
             "body": statements
+        }
+
+    def parse_while(self):
+        line = self.tokens.peek().line
+        self.tokens.next()
+        expression = self.parse_expression()
+        self.tokens.next()
+        body = self.parse_statement()
+        return {
+            "type": NodeType.WHILE_STATEMENT,
+            "line": line,
+            "test": expression,
+            "body": body
         }
 
     def parse_if(self):
@@ -216,7 +231,9 @@ class Parser:
 
     def assignment(self):
         left = self.equality()
-        if self.tokens.has_next() and self.tokens.peek().match(TokenType.EQUAL, TokenType.PLUS_EQUAL):
+        if self.tokens.has_next() and self.tokens.peek().match(TokenType.EQUAL,
+                TokenType.PLUS_EQUAL,
+                TokenType.MINUS_EQUAL):
             operation = self.tokens.peek().raw
             self.tokens.next()
             right = self.equality()

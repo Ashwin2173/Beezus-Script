@@ -50,6 +50,10 @@ class Compiler:
                 compiled_alternate = self.get_compiled_statement(statement['alternate'])
                 compiled_if = f"{compiled_if} else {{ {compiled_alternate} }}"
             return compiled_if
+        elif _type == NodeType.WHILE_STATEMENT:
+            expression = self.get_compiled_expression(statement['test'])
+            compiled_body = self.get_compiled_statement(statement['body'])
+            return f"for {expression} {{ {compiled_body} }}"
         elif _type == NodeType.BLOCK_STATEMENT:
             return "\n".join([self.get_compiled_statement(line) for line in statement['body']])
         else:
