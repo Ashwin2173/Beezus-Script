@@ -1,4 +1,5 @@
 import os
+import re
 
 from lang.tokenizer import TokenType
 from lang.utils.generator import Generator
@@ -65,23 +66,22 @@ class Parser:
             return expression
 
     def parse_package(self):
-        self.tokens.next()
-        self.tokens.peek().expect(TokenType.ID)
-        package_name = self.tokens.peek()
+        token = self.tokens.next()
         if self.package_name is not None:
-            raise LoomSyntaxError("Re-declaration of package", package_name)
-        self.package_name = package_name.raw
-        self.tokens.next().expect(TokenType.SEMICOLON)
+            raise LoomSyntaxError("Re-declaration of package", token)
+        self.tokens.peek().expect(TokenType.ID)
+        self.package_name = re.sub(r"[\\/]", "_", self.parse_dir_id())
+        self.tokens.peek().expect(TokenType.SEMICOLON)
 
     def parse_import(self):
         self.tokens.next()
         self.tokens.peek().expect(TokenType.ID)
-        import_module = self.tokens.peek().raw
-        self.tokens.next().expect(TokenType.SEMICOLON)
+        import_module = self.parse_dir_id()
+        self.tokens.peek().expect(TokenType.SEMICOLON)
         if import_module not in self.imports:
             self.imports.add(import_module)
             relative_lib_path = os.path.join(self.program_home, import_module + ".bz")
-            module_lib_path = os.path.join(os.path.join(self.beezus_home, "libs"), import_module+".bz")
+            module_lib_path = os.path.join(os.path.join(self.beezus_home, "libs"), import_module + ".bz")
             lib_path = None
             if os.path.exists(relative_lib_path):
                 lib_path = relative_lib_path
@@ -191,7 +191,6 @@ class Parser:
             function_name = "main__"
         elif self.package_name != "main":
             function_name = f"{self.package_name}_{function_name}"
-        print(f"{self.package_name}_{function_name}")
         self.program['body'].append({
             "type": NodeType.FUNCTION_DECLARATION,
             "returnType": return_type,
@@ -374,7 +373,18 @@ class Parser:
             return identifier
         else:
             raise LoomSyntaxError(f"Invalid literal '{token.raw}'", token)
-    
+
+    def parse_dir_id(self, name=None):
+        token = self.tokens.peek()
+        if self.tokens.has_next() and self.tokens.peek(1).match(TokenType.DOT):
+            self.tokens.next().expect(TokenType.DOT)
+            self.tokens.next()
+            return self.parse_dir_id(token.raw)
+        elif self.tokens.peek().match(TokenType.ID):
+            self.tokens.next()
+            if name is None: return token.raw
+            return os.path.join(name, token.raw)
+
     def parse_id(self):
         token = self.tokens.peek()
         if self.tokens.has_next() and self.tokens.peek(1).match(TokenType.DOT):

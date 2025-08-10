@@ -1,0 +1,5 @@
+package main;
+
+void function1() {
+	print("function1 called");
+}

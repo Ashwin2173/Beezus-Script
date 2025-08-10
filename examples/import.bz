@@ -1,0 +1,7 @@
+package main;
+
+import importTest;
+
+void main() {
+	test.run();
+}

@@ -1,0 +1,26 @@
+package main;
+
+import example;
+import unicorn;
+import zebra;
+
+// now importing a module inside a folder can be
+// done by doing this
+import example.cow;
+
+void main() {
+	// As both example and main belong to same package
+	// function1() can be called just function1() 
+	function1();
+
+	// If there are in different package name
+	// still under the same folder then package name
+	// must be prefixed to call the function
+	unicorn.run();
+
+	// If package name has an underscore then prefix
+	// the callee with that package name
+	zebra.functions.run();
+
+	cow.moo();
+}

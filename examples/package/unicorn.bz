@@ -1,0 +1,5 @@
+package unicorn;
+
+void run() {
+	print("LoL unicorn is running...");
+}

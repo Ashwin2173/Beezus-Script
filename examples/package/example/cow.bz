@@ -1,0 +1,5 @@
+package cow;
+
+void moo() {
+	print("MOOOoooOOOoooOOO");
+}

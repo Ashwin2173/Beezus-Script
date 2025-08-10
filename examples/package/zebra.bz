@@ -1,0 +1,6 @@
+package zebra_functions;
+// _ (underscore) is the separator
+
+void run() {
+	print("LoL zebra is running");
+}
