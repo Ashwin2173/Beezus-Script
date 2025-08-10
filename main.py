@@ -40,4 +40,4 @@ def get_program_home(input_path):
     return os.path.abspath(os.path.join(os.getcwd(), input_path))
 
 if __name__ == '__main__':
-    main("examples/package/main.bz")
+    main("examples/rule110.bz")

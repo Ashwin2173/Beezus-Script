@@ -256,13 +256,13 @@ class Parser:
         return expression
 
     def assignment(self):
-        left = self.equality()
+        left = self.logical_or()
         if self.tokens.has_next() and self.tokens.peek().match(TokenType.EQUAL,
                 TokenType.PLUS_EQUAL,
                 TokenType.MINUS_EQUAL):
             operation = self.tokens.peek().raw
             self.tokens.next()
-            right = self.equality()
+            right = self.logical_or()
             if left["type"] not in {NodeType.IDENTITY, NodeType.MEMBERSHIP_EXPRESSION}:
                 raise LoomSyntaxError("cannot assign to an expression")
             return {
@@ -272,6 +272,34 @@ class Parser:
                 "right": right
             }
         return left
+
+    def logical_or(self):
+        left_expression = self.logical_and()
+        while self.tokens.has_next() and self.tokens.peek().match(TokenType.OR):
+            operation = self.tokens.peek().raw
+            self.tokens.next()
+            right_expression = self.logical_and()
+            left_expression = {
+                "type": NodeType.BINARY_EXPRESSION,
+                "left": left_expression,
+                "operation": operation,
+                "right": right_expression
+            }
+        return left_expression
+
+    def logical_and(self):
+        left_expression = self.equality()
+        while self.tokens.has_next() and self.tokens.peek().match(TokenType.AND):
+            operation = self.tokens.peek().raw
+            self.tokens.next()
+            right_expression = self.equality()
+            left_expression = {
+                "type": NodeType.BINARY_EXPRESSION,
+                "left": left_expression,
+                "operation": operation,
+                "right": right_expression
+            }
+        return left_expression
     
     def equality(self):
         left_expression = self.comparison()
@@ -374,17 +402,6 @@ class Parser:
         else:
             raise LoomSyntaxError(f"Invalid literal '{token.raw}'", token)
 
-    def parse_dir_id(self, name=None):
-        token = self.tokens.peek()
-        if self.tokens.has_next() and self.tokens.peek(1).match(TokenType.DOT):
-            self.tokens.next().expect(TokenType.DOT)
-            self.tokens.next()
-            return self.parse_dir_id(token.raw)
-        elif self.tokens.peek().match(TokenType.ID):
-            self.tokens.next()
-            if name is None: return token.raw
-            return os.path.join(name, token.raw)
-
     def parse_id(self):
         token = self.tokens.peek()
         if self.tokens.has_next() and self.tokens.peek(1).match(TokenType.DOT):
@@ -403,3 +420,14 @@ class Parser:
             }
         else:
             raise LoomSyntaxError("Invalid expression", self.tokens.peek())
+
+    def parse_dir_id(self, name=None):
+        token = self.tokens.peek()
+        if self.tokens.has_next() and self.tokens.peek(1).match(TokenType.DOT):
+            self.tokens.next().expect(TokenType.DOT)
+            self.tokens.next()
+            return self.parse_dir_id(token.raw)
+        elif self.tokens.peek().match(TokenType.ID):
+            self.tokens.next()
+            if name is None: return token.raw
+            return os.path.join(name, token.raw)

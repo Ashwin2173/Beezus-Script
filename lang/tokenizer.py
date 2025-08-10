@@ -39,6 +39,8 @@ class TokenType:
     SLASH = 118
     PLUS_EQUAL = 119
     MINUS_EQUAL = 120
+    OR = 121
+    AND = 122
 
     GHOST_NAME = 200
 
@@ -142,6 +144,8 @@ class Tokenizer:
             '-': TokenType.MINUS,
             '-=': TokenType.MINUS_EQUAL,
             '*': TokenType.STAR,
-            '/': TokenType.SLASH
+            '/': TokenType.SLASH,
+            '||': TokenType.OR,
+            '&&': TokenType.AND
         }.get(symbol)
         

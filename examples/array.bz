@@ -1,0 +1,10 @@
+package main;
+
+void main() {
+    const list<string> names = [
+        "Ashwin",
+        "Another Ashwin",
+        "Another Another Ashwin"
+    ];
+    print(names);
+}
