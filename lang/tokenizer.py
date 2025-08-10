@@ -64,15 +64,17 @@ class Token:
         return self.type in type
 
 class Tokenizer:
-    def __init__(self, program, grammar):
-        self.program = program
+    def __init__(self, grammar):
         self.grammar = grammar
         self.line = 1
 
-    def tokenize(self):
+    def reset(self):
+        self.line = 1
+
+    def tokenize(self, program):
         tokens = list()
         compiled_grammar = re.compile(self.grammar, re.VERBOSE)
-        for item in compiled_grammar.finditer(self.program):
+        for item in compiled_grammar.finditer(program):
             token_type, raw_token = self.__get_token_type(item.groupdict())
             if token_type is None: continue
             tokens.append(

@@ -1,0 +1,11 @@
+package system;
+
+void run(string command) {
+	// run the command in an console 
+	print("executing:", command);
+}
+
+void exit(integer exitCode) {
+	// exit with the given exit code
+	print("Exiting with exit code", exitCode);
+}

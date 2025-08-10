@@ -3,27 +3,25 @@ import os
 from lang.parser import Parser
 from lang.tokenizer import Tokenizer
 from lang.compiler import Compiler
-from lang.utils.generator import Generator
 from lang.expections import LoomSyntaxError
 
 def main(file_path):
+    beezus_home = os.path.dirname(os.path.abspath(__file__))
+    program_home = os.path.dirname(get_program_home(file_path))
     with open(file_path) as program_file:
         raw_program = program_file.read()
 
     with open("lang/token.g") as grammar_file:
         token_grammar = grammar_file.read()
 
-    tokenizer = Tokenizer(raw_program, token_grammar)
-    tokens = tokenizer.tokenize()
-
-    generator = Generator(tokens)
-    parser = Parser(generator)
+    tokenizer = Tokenizer(token_grammar)
+    parser = Parser(tokenizer, beezus_home, program_home, raw_program, set())
     tree = parser.parse()
     if tree is None:
         raise LoomSyntaxError("Incomplete program file")
 
     # import json
-    tree['import'] = list(tree['import'])
+    # tree['import'] = list(tree['import'])
     # print(json.dumps(tree, indent=2))
 
     file = Compiler(tree)
@@ -36,5 +34,10 @@ def main(file_path):
     os.system(f"go run {new_file_path}")
     # os.system(f"del {new_file_path}")
 
+def get_program_home(input_path):
+    if os.path.isabs(input_path):
+        return os.path.abspath(input_path)
+    return os.path.abspath(os.path.join(os.getcwd(), input_path))
+
 if __name__ == '__main__':
-    main("examples/whileLoop.bz")
+    main("examples/import.bz")

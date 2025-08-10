@@ -7,6 +7,7 @@ main() {
 }
 
 integer runTest() {
+    print("Started fib test");
     if fib(3) != 2 {
         print("fib(3) test failed");
         return 1;

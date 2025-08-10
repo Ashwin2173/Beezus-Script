@@ -1,18 +1,29 @@
+import os
+
 from lang.tokenizer import TokenType
+from lang.utils.generator import Generator
 from lang.expections import LoomSyntaxError
 from lang.utils.ast_node import NodeType
 
 class Parser:
-    def __init__(self, tokens):
-        self.tokens = tokens
-        self.pointer = 0
-        self.data_types = {"integer", "string", "double"}
+    def __init__(self, tokenizer, beezus_home, program_home, program, imports):
         self.package_name = None
+        self.tokenizer = tokenizer
+        self.tokens = self.get_tokens(program)
+        self.pointer = 0
+        self.program_home = program_home
+        self.beezus_home = beezus_home
+        self.data_types = {"integer", "string", "double"}
+        self.imports = imports
         self.program = {
-            "import": set(),
             "body": []
         }
-    
+
+    def get_tokens(self, program):
+        self.tokenizer.reset()
+        raw_tokens = self.tokenizer.tokenize(program)
+        return Generator(raw_tokens)
+
     def parse(self):
         while self.tokens.has_next():
             token = self.tokens.peek()
@@ -66,8 +77,23 @@ class Parser:
         self.tokens.next()
         self.tokens.peek().expect(TokenType.ID)
         import_module = self.tokens.peek().raw
-        self.program['import'].add(import_module)
         self.tokens.next().expect(TokenType.SEMICOLON)
+        if import_module not in self.imports:
+            self.imports.add(import_module)
+            relative_lib_path = os.path.join(self.program_home, import_module + ".bz")
+            module_lib_path = os.path.join(os.path.join(self.beezus_home, "libs"), import_module+".bz")
+            lib_path = None
+            if os.path.exists(relative_lib_path):
+                lib_path = relative_lib_path
+            elif os.path.exists(module_lib_path):
+                lib_path = module_lib_path
+            else:
+                raise LoomSyntaxError(f"No module found named '{import_module}'")
+            with open(lib_path) as import_file:
+                parser = Parser(self.tokenizer, self.beezus_home, self.program_home,
+                                import_file.read(), self.imports)
+                body = parser.parse()['body']
+                self.program.get('body').extend(body)
 
     def parse_global_declaration(self):
         return_type = "void" # To Support fancy no return type function declaration
@@ -161,10 +187,11 @@ class Parser:
         function_args = self.parse_function_args()
         self.tokens.next()
         function_body = self.parse_block()
-        if name.raw == "main":
+        if self.package_name == "main" and name.raw == "main":
             function_name = "main__"
         elif self.package_name != "main":
             function_name = f"{self.package_name}_{function_name}"
+        print(f"{self.package_name}_{function_name}")
         self.program['body'].append({
             "type": NodeType.FUNCTION_DECLARATION,
             "returnType": return_type,

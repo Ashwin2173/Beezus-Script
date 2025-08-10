@@ -1,0 +1,58 @@
+%YAML 1.2
+---
+name: Beezus Script
+file_extensions:
+  - bz
+scope: source.beezus
+
+contexts:
+  main:
+    # Comments
+    - match: //[^\n]*
+      scope: comment.line.double-slash.beezus
+
+    # Keywords
+    - match: \b(return|var|const|package|import|pass|if|else|while)\b
+      scope: keyword.control.beezus
+
+    # Data types
+    - match: \b(string|integer|void|double|any)\b
+      scope: storage.type.beezus
+
+    # Float numbers
+    - match: \b\d+\.\d+\b
+      scope: constant.numeric.float.beezus
+
+    # Integer numbers
+    - match: \b\d+\b
+      scope: constant.numeric.integer.beezus
+
+    # Strings with escape support
+    - match: '"'
+      scope: punctuation.definition.string.begin.beezus
+      push: double_quoted_string
+
+    # Operators & punctuation (neutral scope)
+    - match: \+=|-=|\*=|/=|%=|==|<=|>=|!=|=|\+|\-|\*|\/|%|<|>|\(|\)|\{|\}|;|,
+      scope: meta.symbol.beezus
+
+    # Dot operator (neutral scope)
+    - match: \.
+      scope: meta.symbol.beezus
+
+    # Function names (declaration or call)
+    - match: \b([A-Za-z_]\w*)\s*(?=\()
+      captures:
+        1: entity.name.function.beezus
+
+    # Identifiers (variables, etc.)
+    - match: \b[A-Za-z_]\w*\b
+      scope: variable.other.beezus
+
+  double_quoted_string:
+    - meta_scope: string.quoted.double.beezus
+    - match: '\\.'
+      scope: constant.character.escape.beezus
+    - match: '"'
+      scope: punctuation.definition.string.end.beezus
+      pop: true
